@@ -5,11 +5,17 @@
 from permutation_gen import *
 
 def do_calculation(infix):
+    wins = 0
+    losses = 0
     perm_list = consider_number(infix)
     all_perms = generate_all_permutations(perm_list)
     # Could return a list as [3 (wins), 6 (tries)]
-    test =[3,6]
-    return test
+    for index, permutation in enumerate(all_perms):
+        if index == permutation[index]:
+            wins += 1
+        losses += 1
+
+    return [wins, losses]
 
 def main():
 
