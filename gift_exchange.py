@@ -1,17 +1,21 @@
-#BJC, Original Author, 2/2024
+# BJC, Original Author, 2/2024
 # Program that considers chances for a holiday gift exchange of a user getting
 # themself. Uses a permutation generator to do so.
 
 from permutation_gen import *
 
-def do_calculation(infix):
+def how_likely_to_get_self(infix):
     wins = 0
     losses = 0
     perm_list = consider_number(infix)
     all_perms = generate_all_permutations(perm_list)
     # Could return a list as [3 (wins), 6 (tries)]
-    for index, permutation in enumerate(all_perms):
-        if index == permutation[index]:
+    for permutation in all_perms:
+        # Enumerate puts the index number and value into a tuple like [(0,2)] if my list was [2].
+        # Next, it creates boolean values where each value is true if the current index is not in orignal position, and false otherwise.
+        # The all() function checks if all the boolean values are true.
+        if all(index != p for index, p in enumerate(permutation)):
+            # If all elements are not in their original position, considered a True, and is thus a win.
             wins += 1
         losses += 1
 
@@ -27,7 +31,7 @@ def main():
         else:
             break
 
-    odds = do_calculation(amt_of_students)
+    odds = how_likely_to_get_self(amt_of_students)
     wins = odds[0]
     tries = odds[1] # Count of Total Permutations
 
