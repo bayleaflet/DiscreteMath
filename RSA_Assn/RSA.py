@@ -3,6 +3,7 @@
 
 # RSA Class for encryption assignment
 import miller_alg
+import math
 
 class RSA:
 
@@ -42,6 +43,30 @@ class RSA:
             break
         n = p * q
         r = (p-1)*(q-1)
+
+        # find e -> a 398 digit number relatively prim with r
+        # Commenting out this, will swap in later
+
+        # e = 10**398 + 1
+        e = 10**39 + 1
+        while True:
+            if math.gcd(e,r) == 1:
+                break
+            e += 1
+
+        # find d -> the inverse of e mod r
+        d = inverse(e,r)
+
+        # Write n and e to public.txt
+        with open("public.txt", "w") as file:
+            file.write(str(n) + "\n")
+            file.write(str(e) + "\n")
+
+        # Write n and d to private.txt
+        with open("private.txt", "w") as file:
+            file.write(str(n) + "\n")
+            file.write(str(d) + "\n")
+
         return p, q
 
     def encrypt(self, input_file, output_file):
@@ -58,9 +83,19 @@ class RSA:
                 answer = answer * base + self.alphabet.index(c)
         return answer
 
+def inverse(a,n):
+    t, newt = 0,1
+    r, newr = n, a
 
+    while newr != 0:
+        quotient = r//newr
+        t, newt = newt, t-quotient * newt
+        r, newr = newr, r - quotient * newr
 
-rsa_instance = RSA()
-p, q = rsa_instance.generate_keys()
-print("p:", p)
-print("q:", q)
+    if r> 1:
+        return "a is not invertible"
+
+    if t < 0:
+        t += n
+    return t
+
