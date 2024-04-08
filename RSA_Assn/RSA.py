@@ -16,8 +16,8 @@ class RSA:
         while True:
             string1 = input("Please enter first string: ")
             string2 = input("Please enter second string: ")
-            p = self.to_base_10(string1)
-            q = self.to_base_10(string2)
+            p = self.to_base_10(string1, self.alphabet)
+            q = self.to_base_10(string2, self.alphabet)
             # Commented out below for easier way of testing, will re-initiate
             # if p >= 10**200 and q >= 10**200:
             if p >= 20 and q >= 20:
@@ -89,7 +89,7 @@ class RSA:
         # Convert blocks into a Base 10 number
         numbers = []
         for block in blocks:
-            base_10_num = self.to_base_10(block, self.encrypt_alphabet)
+            base_10_num = self.to_base_10(block,self.encrypt_alphabet)
             numbers.append(base_10_num)
 
         # Read n and e from public.txt
@@ -104,7 +104,7 @@ class RSA:
             encrypted_blocks.append(encrypted_number)
 
         # Convert the resulting integers back to the base 70 alphabet
-        encrypted_text = ''.join([self.to_base_10(num, self.encrypt_alphabet) for num in encrypted_blocks])
+        encrypted_text = ''.join([self.to_base_10(str(num)) for num in encrypted_blocks])
 
         # Add block separators ($) after each block
         encrypted_text_with_blocks = '$'.join(encrypted_text[i:i+self.block_size] for i in range(0, len(encrypted_text), self.block_size))
@@ -140,7 +140,7 @@ class RSA:
         with open(output_file, "wb") as fout:
             fout.write(decrypted_text.encode("utf-8"))
 
-    def to_base_10(self, text):
+    def to_base_10(self, text,alphabet):
         base = len(self.alphabet)
         answer = 0
         for c in text:
