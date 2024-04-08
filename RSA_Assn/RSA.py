@@ -114,7 +114,31 @@ class RSA:
             fout.write(encrypted_text_with_blocks.encode("utf-8"))
 
     def decrypt(self, input_file, output_file):
-        pass
+        with open(input_file, "rb") as fin:
+            encrypted_text_binary = fin.read()
+
+        encrypted_text = encrypted_text_binary.decode("utf-8")
+
+        encrypted_blocks = encrypted_text.split('$')
+
+        with open("private.tct", "r") as private_file:
+            n = int(private_file.readline().strip())
+            d = int(private_file.readline().strip())
+
+        numbers = []
+        for block in encrypted_blocks:
+            base_10_num = self.to_base_10(block, self.encrypt_alphabet)
+            numbers.append(base_10_num)
+
+        decrypted_blocks = []
+        for number in numbers:
+            decrypted_number = pow(number,d, n)
+            decrypted_blocks.append(decrypted_number)
+
+        decrypted_text = ''.join([self.base10_to_text(num, self.encrypt_alphabet) for num in decrypted_blocks])
+
+        with open(output_file, "wb") as fout:
+            fout.write(decrypted_text.encode("utf-8"))
 
     def to_base_10(self, text):
         base = len(self.alphabet)
@@ -123,6 +147,14 @@ class RSA:
             if c in self.alphabet:
                 answer = answer * base + self.alphabet.index(c)
         return answer
+
+    def base10_to_text(self, number, alphabet):
+        base=len(alphabet)
+        text = ''
+        while number:
+            number, remainder = divmod(number, base)
+            text = alphabet[remainder] + text
+        return text
 
 def inverse(a,n):
     t, newt = 0,1
