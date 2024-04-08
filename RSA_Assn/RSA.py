@@ -101,7 +101,7 @@ class RSA:
         encrypted_blocks = []
         for number in numbers:
             encrypted_number = pow(number, e, n)
-            encypted_blocks.append(encrypted_number)
+            encrypted_blocks.append(encrypted_number)
 
         # Convert the resulting integers back to the base 70 alphabet
         encrypted_text = ''.join([self.to_base_10(num, self.encrypt_alphabet) for num in encrypted_blocks])
@@ -121,7 +121,7 @@ class RSA:
 
         encrypted_blocks = encrypted_text.split('$')
 
-        with open("private.tct", "r") as private_file:
+        with open("private.txt", "r") as private_file:
             n = int(private_file.readline().strip())
             d = int(private_file.readline().strip())
 
