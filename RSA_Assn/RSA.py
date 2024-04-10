@@ -156,19 +156,19 @@ class RSA:
             text = alphabet[remainder] + text
         return text
 
-def inverse(a,n):
-    t, newt = 0,1
-    r, newr = n, a
+    def inverse(a,n):
+        t, newt = 0,1
+        r, newr = n, a
 
-    while newr != 0:
-        quotient = r//newr
-        t, newt = newt, t-quotient * newt
-        r, newr = newr, r - quotient * newr
+        while newr != 0:
+            quotient = r//newr
+            t, newt = newt, t-quotient * newt
+            r, newr = newr, r - quotient * newr
 
-    if r> 1:
-        return "a is not invertible"
+        if r> 1:
+            return "a is not invertible"
 
-    if t < 0:
-        t += n
-    return t
+        if t < 0:
+            t += n
+        return t
 
