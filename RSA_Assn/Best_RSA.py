@@ -45,10 +45,8 @@ class RSA:
         r = (p - 1) * (q - 1)
 
         # find e -> a 398 digit number relatively prime with r
-        e = 65537  # Recommended public exponent
-        while True:
-            if math.gcd(e, r) == 1:
-                break
+        e = 10 ** 398 + 1
+        while math.gcd(e,r) != 1:
             e += 1
 
         # find d -> the inverse of e mod r
