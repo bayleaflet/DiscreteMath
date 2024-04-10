@@ -17,7 +17,7 @@ class RSA:
             q = self.to_base_10(string2, self.alphabet)
 
             # p and q need to be 200 or more digits long
-            if p >= 200 and q >= 200:
+            if p >= 2 and q >= 2:
                 break
             else:
                 print("Your input strings are too short. Try again.")
@@ -58,6 +58,12 @@ class RSA:
 
         # Find d -> the inverse of e mod r
         d = self.inverse(e, r)
+
+        print (" P is: ", str(p))
+        print (" Q is: ", str(q))
+        print (" E is: ", str(e))
+        print (" R is: ", str(r))
+        print (" D is: ", str(d))
 
         # Write n and e to public.txt
         with open("public.txt", "w") as file:
