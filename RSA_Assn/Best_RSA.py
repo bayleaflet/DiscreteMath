@@ -12,17 +12,21 @@ class RSA:
         while True:
             string1 = input("Please enter first string: ")
             string2 = input("Please enter second string: ")
+            # Convert p and q to base 10 using alphabet above
             p = self.to_base_10(string1, self.alphabet)
             q = self.to_base_10(string2, self.alphabet)
 
+            # p and q need to be 200 or more digits long
             if p >= 200 and q >= 200:
                 break
             else:
                 print("Your input strings are too short. Try again.")
                 continue
 
-        p = p % 10 ** 200  # Mod so they aren't too long
+        # Mod p and q so they aren't too long
+        p = p % 10 ** 200
         q = q % 10 ** 200
+
         # Make sure p and q are odd
         if p % 2 == 0:
             p += 1
@@ -32,8 +36,10 @@ class RSA:
         # Pass in p and q into Miller's algorithm
         # If Miller's returns True, answer is a probable prime
         while True:
-            if not miller_alg.main(p):  # If Miller's algorithm returns False
+            # Run Miller's Algorithm. If returns False...
+            if not miller_alg.main(p):
                 # Number is definitely composite. Continue loop.
+                # We add 2 to keep number odd
                 p += 2
                 continue
             if not miller_alg.main(q):
@@ -41,15 +47,16 @@ class RSA:
                 continue
             break
 
+        # Assign n, r, e, and d
         n = p * q
         r = (p - 1) * (q - 1)
 
-        # find e -> a 398 digit number relatively prime with r
+        # Find e -> a 398 digit number relatively prime with r
         e = 10 ** 398 + 1
         while math.gcd(e,r) != 1:
             e += 1
 
-        # find d -> the inverse of e mod r
+        # Find d -> the inverse of e mod r
         d = self.inverse(e, r)
 
         # Write n and e to public.txt
@@ -98,23 +105,30 @@ class RSA:
             fout.write(encrypted_text_with_blocks.encode("utf-8"))
 
     def decrypt(self, input_file, output_file):
+        # Open input file in binary mode and read contents
         with open(input_file, "rb") as fin:
             encrypted_text_binary = fin.read()
-
+        # Decode binary data into Unicode str using UTF-8 encoding
         encrypted_text = encrypted_text_binary.decode("utf-8")
 
+        # Split encrypted text into blocks separated by $ sign
         encrypted_blocks = encrypted_text.split('$')
 
+        # Read n, d from private.txt
         with open("private.txt", "r") as private_file:
             n = int(private_file.readline().strip())
             d = int(private_file.readline().strip())
 
+        # Convert each block into base 10 num
         numbers = [self.to_base_10(block, self.encrypt_alphabet) for block in encrypted_blocks]
 
+        # Decrypt each base 10 num using RSA
         decrypted_blocks = [pow(number, d, n) for number in numbers]
 
+        # Convert the resulting integers back
         decrypted_text = ''.join([self.base10_to_text(num, self.encrypt_alphabet) for num in decrypted_blocks])
 
+        # Write decrypted text to output file in binary
         with open(output_file, "wb") as fout:
             fout.write(decrypted_text.encode("utf-8"))
 
