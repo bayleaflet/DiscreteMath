@@ -6,7 +6,7 @@ class RSA:
     def __init__(self):
         self.alphabet = "abcdefghijklmnopqrstuvwxyz"
         self.encrypt_alphabet = ".,?! \t\n\rabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        self.block_size = math.ceil(math.log(10**400, len(self.encrypt_alphabet)))
+
 
     def generate_keys(self):
         while True:
@@ -52,7 +52,9 @@ class RSA:
         r = (p - 1) * (q - 1)
 
         # Find e -> a 398 digit number relatively prime with r
-        e = 10 ** 398 + 1
+        # Making this smaller for testing purpose
+        # e = 10 ** 398 + 1
+        e = 65537
         while math.gcd(e,r) != 1:
             e += 1
 
@@ -64,7 +66,8 @@ class RSA:
         print (" E is: ", str(e))
         print (" R is: ", str(r))
         print (" D is: ", str(d))
-
+        print (" N is: ", str(n))
+        print (" At this time, these numbers are being written to public + private correctly")
         # Write n and e to public.txt
         with open("public.txt", "w") as file:
             file.write(str(n) + "\n")
@@ -85,30 +88,43 @@ class RSA:
         # Decode binary data into a Unicode str using UTF-8 encoding
         plain_text = plain_text_binary.decode("utf-8")
 
-        # Breaks down plaintext into blocks no bigger than block_size
-        blocks = [plain_text[i:i + self.block_size] for i in range(0, len(plain_text), self.block_size)]
+        #WORKING TO THIS POINT
+        max_bytes_per_block = (math.log(n,70))
+        plain_text_length = len(plain_text)
+        blocks_reqd = math.ceil(plain_text_length/max_byters_per_block)
+        bytes_per_block = plain_text_length//blocks_reqd
 
-        # Convert blocks into a Base 10 number
-        numbers = [self.to_base_10(block, self.encrypt_alphabet) for block in blocks]
+        # Loops thru blocks, encode
+        encode_blocks=[]
+        for i in range(blocks_reqd):
+            if i == (blocks_reqd-1):
+                plain_text_block = plain_text[i*bytes_per_block:]
+            else:
+                plain_text_block = plain_text[i*bytes_per_block:(i+1)*bytes_per_block]
 
+            plain_block = self.to_base_10(plain_text_block, self.encrypt_alphabet)
+            encrypt_block = pow(plain_block, e, n)
+            encrypt_text_block = self.base10_to_text(encrypt_block, self.encrypt_alphabet)
+            encrypt_text_block += "$"
+            encode_blocks.append(encrypt_text_block)
         # Read n and e from public.txt
         with open("public.txt", "r") as public_file:
             n = int(public_file.readline().strip())
             e = int(public_file.readline().strip())
 
-        # Encrypt each base 10 num using RSA
-        encrypted_blocks = [pow(number, e, n) for number in numbers]
+        print(" Public key (n,e): ", n,e)
 
-        # Convert the resulting integers back to the base 70 alphabet
-        encrypted_text = ''.join([self.base10_to_text(num, self.encrypt_alphabet) for num in encrypted_blocks])
+        print ("Encrypted blocks: ", encrypted_blocks)
 
-        # Add block separators ($) after each block
-        encrypted_text_with_blocks = '$'.join(encrypted_text[i:i + self.block_size] for i in
-                                               range(0, len(encrypted_text), self.block_size))
+        print("Encrypted_text: ", encrypted_text)
+
+        print("Encrypted text with blocks: ", encrypted_text_with_blocks)
 
         # Write resulting numbers to output file
-        with open(output_file, "wb") as fout:
-            fout.write(encrypted_text_with_blocks.encode("utf-8"))
+        fout = open(outfile, 'wb')
+        for block in encode_blocks:
+            fout.write(block.encode('utf-8'))
+        fout.close()
 
     def decrypt(self, input_file, output_file):
         # Open input file in binary mode and read contents
