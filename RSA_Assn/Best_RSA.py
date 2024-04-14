@@ -81,6 +81,11 @@ class RSA:
         return p, q
 
     def encrypt(self, input_file, output_file):
+        # Read n and e from public.txt
+        with open("public.txt", "r") as public_file:
+            n = int(public_file.readline().strip())
+            e = int(public_file.readline().strip())
+
         # Open input file in binary mode, read contents
         with open(input_file, "rb") as fin:
             plain_text_binary = fin.read()
@@ -90,9 +95,13 @@ class RSA:
 
         #WORKING TO THIS POINT
         max_bytes_per_block = (math.log(n,70))
+        print("Max byte per block: ", max_bytes_per_block)
         plain_text_length = len(plain_text)
-        blocks_reqd = math.ceil(plain_text_length/max_byters_per_block)
+        blocks_reqd = math.ceil(plain_text_length/max_bytes_per_block)
+        print("blocks required: ", blocks_reqd)
         bytes_per_block = plain_text_length//blocks_reqd
+        print("bytes per block: ", bytes_per_block)
+        print('')
 
         # Loops thru blocks, encode
         encode_blocks=[]
@@ -107,21 +116,17 @@ class RSA:
             encrypt_text_block = self.base10_to_text(encrypt_block, self.encrypt_alphabet)
             encrypt_text_block += "$"
             encode_blocks.append(encrypt_text_block)
-        # Read n and e from public.txt
-        with open("public.txt", "r") as public_file:
-            n = int(public_file.readline().strip())
-            e = int(public_file.readline().strip())
 
-        print(" Public key (n,e): ", n,e)
+        print("Plain block: ", plain_block)
 
-        print ("Encrypted blocks: ", encrypted_blocks)
+        print ("Encrypted blocks: ", encrypt_block)
 
-        print("Encrypted_text: ", encrypted_text)
+        print("Encrypted_text: ", encrypt_text_block)
 
-        print("Encrypted text with blocks: ", encrypted_text_with_blocks)
+        print("Encrypted text with blocks: ", encode_blocks)
 
         # Write resulting numbers to output file
-        fout = open(outfile, 'wb')
+        fout = open(output_file, 'wb')
         for block in encode_blocks:
             fout.write(block.encode('utf-8'))
         fout.close()
